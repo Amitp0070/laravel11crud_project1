@@ -9,8 +9,12 @@ use App\Models\Product;
 class ProductController extends Controller
 {
     // This method will show all the products
-    public function index() {
-        return view('products.product_list');
+    public function index()
+    {
+        $product = Product::orderBy('created_at', 'DESC')->get();
+        return view('products.product_list',[
+            'products' => $product
+        ]);
     }
     // This method will show single product page
     public function create()
@@ -27,6 +31,10 @@ class ProductController extends Controller
             'sku' => 'required|min:3',  // 'sku' field required hai aur minimum 3 characters hone chahiye
             'price' => 'required|numeric', // 'price' field required hai aur yeh sirf numbers accept karega
         ];
+
+        if ($request->image != "") {
+            $rules['image'] = 'image';
+        }
 
         // Validator ka use karke request data ko validate kar rahe hain
         $validator  = Validator::make($request->all(), $rules);
@@ -46,9 +54,24 @@ class ProductController extends Controller
         $product->price = $request->price;
         $product->description = $request->description;
         $product->save();
-        
-        return redirect()->route('products.index')->with('success', 'Product has been added successfully!');
 
+        if ($request->image != "") {
+            // here we will upload image
+            $image = $request->image;
+            $ext  = $image->getClientOriginalExtension();
+            $imageName = time() . '.' . $ext; //Unique image name 
+
+            // Save image to product directory
+            $image->move(public_path('uploads/products'), $imageName);
+
+            // save image in db 
+            $product->image = $imageName;
+            $product->save();
+        }
+
+
+
+        return redirect()->route('products.index')->with('success', 'Product has been added successfully!');
     }
 
     // This methos will show the edit product page 
