@@ -75,7 +75,9 @@ class ProductController extends Controller
     }
 
     // This methos will show the edit product page 
-    public function edit() {}
+    public function edit() {
+        return view('products.edit');
+    }
 
     // This method will update the product
     public function update() {}

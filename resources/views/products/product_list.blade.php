@@ -54,7 +54,7 @@
                                 <td>${{$product->price}}</td>
                                 <td>{{\Carbon\Carbon::parse($product->create_at)->format('d M, Y')}}</td>
                                 <td>
-                                    <a href="" class="btn btn-dark">Edit</a>
+                                    <a href="{{ route('products.edit',$product->id) }}" class="btn btn-dark">Edit</a>
                                     <a href="" class="btn btn-danger">Delete</a>
                                 </td>
                             </tr>
