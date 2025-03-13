@@ -75,12 +75,62 @@ class ProductController extends Controller
     }
 
     // This methos will show the edit product page 
-    public function edit() {
-        return view('products.edit');
+    public function edit($id) {
+        $product = Product::findOrfail($id);
+        return view('products.edit',['product' => $product]);
     }
 
     // This method will update the product
-    public function update() {}
+    public function update($id, Request $request) {
+        $product = Product::findOrfail($id);
+          // Validation ke rules define kar rahe hain
+          $rules = [
+            'name' => 'required|min:5', // 'name' field required hai aur minimum 5 characters hone chahiye
+            'sku' => 'required|min:3',  // 'sku' field required hai aur minimum 3 characters hone chahiye
+            'price' => 'required|numeric', // 'price' field required hai aur yeh sirf numbers accept karega
+        ];
+
+        if ($request->image != "") {
+            $rules['image'] = 'image';
+        }
+
+        // Validator ka use karke request data ko validate kar rahe hain
+        $validator  = Validator::make($request->all(), $rules);
+
+        // Agar validation fail ho jata hai toh
+        if ($validator->fails()) {
+            // User ko 'products.create' page par wapas bhej rahe hain 
+            // Errors ke saath jo validation ke time generate hue hain
+            // Aur jo input user ne diya tha wo bhi wapas bhej rahe hain taki dobara fill kar sake
+            return redirect()->route('products.edit',$product->id)->withErrors($validator)->withInput();
+        }
+
+        // here we will update products in db 
+        $product->name = $request->name;
+        $product->sku = $request->sku;
+        $product->price = $request->price;
+        $product->description = $request->description;
+        $product->save();
+
+        if ($request->image != "") {
+            // here we will upload image
+            $image = $request->image;
+            $ext  = $image->getClientOriginalExtension();
+            $imageName = time() . '.' . $ext; //Unique image name 
+
+            // Save image to product directory
+            $image->move(public_path('uploads/products'), $imageName);
+
+            // save image in db 
+            $product->image = $imageName;
+            $product->save();
+        }
+
+
+
+        return redirect()->route('products.index')->with('success', 'Product has been updated successfully!');
+    
+    }
 
     // This method will delete the product
     public function delete() {}

@@ -55,6 +55,7 @@
                             <div class="mb-3">
                                 <label for="" class="form-label fw-bold">Image</label>
                                 <input type="file" class="form-control" placeholder="Image" name="image" value="{{old('image')}}">
+                               
                             </div>
                             <div class="d-grid">
                                 <button class="btn btn-lg btn-primary">Submit</button>
